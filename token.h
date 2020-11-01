@@ -26,9 +26,6 @@ public:
     }
 };
 
-class Exit : public Token {
-};
-
 class Program : public Token {
 public:
     explicit Program() : Token(new string("program")) {};
@@ -355,15 +352,6 @@ public:
 
     friend std::ostream &operator<<(std::ostream &_stream, DoisPontos const &doisPontos) {
         return _stream << "(DoisPontos, " << *(string *) doisPontos.value << ")" << endl;
-    }
-};
-
-class Id : public Token {
-public:
-    explicit Id() : Token(new string("Id")) {};
-
-    friend std::ostream &operator<<(std::ostream &_stream, Id const &id) {
-        return _stream << "(Id, " << *(string *) id.value << ")" << endl;
     }
 };
 

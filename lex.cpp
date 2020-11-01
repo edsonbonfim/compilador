@@ -9,12 +9,7 @@
 #define eh_letra_minuscula(ch)           ((ch) >= 'a' && (ch) <= 'z')
 #define eh_letra(ch)                     (eh_letra_maiuscula(ch) || eh_letra_minuscula(ch))
 #define eh_digito(ch)                    ((ch) >= '0' && (ch) <= '9')
-#define eh_letra_ou_digito(ch)           (eh_letra(ch) || eh_digito(ch))
 #define eh_ponto(ch)                     ((ch) == '.')
-
-#define eh_operador_logico(ch)           (strchr("><=!", (ch)) != 0)
-#define eh_operador_matematico(ch)       (strchr("+-*/", (ch)) != 0)
-
 
 Lex::Lex(const string &file_name) {
     source = new ifstream(file_name);

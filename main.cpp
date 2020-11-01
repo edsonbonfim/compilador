@@ -20,37 +20,6 @@ int main(int argc, char **argv) {
 
     do {
         token = lex->getNextToken();
-
-        if (dynamic_cast<Real *>(token)) {
-            cout << *dynamic_cast<Real *>(token);
-        }
-
-        if (dynamic_cast<Integer *>(token)) {
-            cout << *dynamic_cast<Integer *>(token);
-        }
-
-        if (dynamic_cast<Var *>(token)) {
-            cout << *dynamic_cast<Var *>(token);
-        }
-
-        if (dynamic_cast<Program *>(token)) {
-            cout << *dynamic_cast<Program *>(token);
-        }
-
-        if (dynamic_cast<Begin *>(token)) {
-            cout << *dynamic_cast<Begin *>(token);
-        }
-
-        if (dynamic_cast<End *>(token)) {
-            cout << *dynamic_cast<End *>(token);
-        }
-
-        if (dynamic_cast<PontoVirgula *>(token)) {
-            cout << *dynamic_cast<PontoVirgula *>(token);
-        }
-
-
-        delete token;
     } while (token != nullptr);
 
     delete lex;
