@@ -49,6 +49,11 @@ int main(int argc, char **argv) {
             cout << *dynamic_cast<End *>(token);
         }
 
+        if (dynamic_cast<PontoVirgula *>(token)) {
+            cout << *dynamic_cast<PontoVirgula *>(token);
+        }
+
+
         delete token;
     } while (token != nullptr);
 

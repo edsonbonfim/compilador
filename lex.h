@@ -24,15 +24,19 @@ private:
 
     void next();
 
+    char peek();
+
     void skipComments();
 
     void skipWhiteSpaces();
 
     void skipCommentsAndWhiteSpaces();
 
+    Token *getId();
+
     Token *getNumberToken();
 
-    Token *getId();
+    Token *getCommentToken();
 };
 
 #endif //COMP_LEX_H

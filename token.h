@@ -339,7 +339,7 @@ public:
 
 class String : public Token {
 public:
-    explicit String() : Token(new string("string")) {};
+    explicit String(string *value) : Token(value) {};
 
     friend std::ostream &operator<<(std::ostream &_stream, String const &_string) {
         return _stream << "(String, " << *(string *) _string.value << ")" << endl;

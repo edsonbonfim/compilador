@@ -38,11 +38,104 @@ Token *Lex::getNextToken() {
         return getNumberToken();
     }
 
+    if (ch == ';') {
+        next();
+        return new PontoVirgula();
+    }
+
+    if (ch == ',') {
+        next();
+        return new Virgula();
+    }
+
+    if (ch == '[') {
+        next();
+        return new AbreColchetes();
+    }
+
+    if (ch == ']') {
+        next();
+        return new FechaColchetes();
+    }
+
+    if (ch == '(') {
+        next();
+        return new AbreParenteses();
+    }
+
+    if (ch == ')') {
+        next();
+        return new FechaParenteses();
+    }
+
+    if (ch == ':') {
+        next();
+        skipWhiteSpaces();
+
+        if (ch == '=') {
+            next();
+            return new Atribuicao();
+        }
+
+        return new DoisPontos();
+    }
+
+    if (ch == '=') {
+        next();
+        return new Igual();
+    }
+
+    if (ch == '.') {
+        next();
+        return new Ponto();
+    }
+
+    if (ch == '"') {
+        next();
+        return getCommentToken();
+    }
+
+    if (ch == '*') {
+        next();
+        return new Mul();
+    }
+
+    if (ch == '/') {
+        next();
+        return new Div();
+    }
+
+    if (ch == '+') {
+        next();
+        return new Soma();
+    }
+
+    if (ch == '-') {
+        next();
+        return new Sub();
+    }
+
+    if (ch == '>') {
+        next();
+        return new Maior();
+    }
+
+    if (ch == '<') {
+        next();
+        return new Menor();
+    }
+
+    if (ch == '!' && peek() == '=') {
+        next();
+        next();
+        return new Diferente();
+    }
+
     if (eh_letra(ch)) {
         return getId();
     }
 
-    return nullptr;
+    return new Error();
 }
 
 void Lex::next() {
@@ -51,6 +144,18 @@ void Lex::next() {
     } else {
         ch = source->get();
     }
+}
+
+
+char Lex::peek() {
+    if (source->eof()) {
+        return '\0';
+    }
+
+    char result = source->get();
+    source->unget();
+
+    return result;
 }
 
 void Lex::skipComments() {
@@ -143,5 +248,76 @@ Token *Lex::getId() {
         return new End();
     }
 
+    if (*value == "const") {
+        return new Const();
+    }
+
+    if (*value == "type") {
+        return new Type();
+    }
+
+    if (*value == "array") {
+        return new Array();
+    }
+
+    if (*value == "of") {
+        return new Of();
+    }
+
+    if (*value == "record") {
+        return new Record();
+    }
+
+    if (*value == "function") {
+        return new Function();
+    }
+
+    if (*value == "procedure") {
+        return new Procedure();
+    }
+
+    if (*value == "while") {
+        return new While();
+    }
+
+    if (*value == "if") {
+        return new If();
+    }
+
+    if (*value == "then") {
+        return new Then();
+    }
+
+    if (*value == "write") {
+        return new Write();
+    }
+
+    if (*value == "read") {
+        return new Read();
+    }
+
+    if (*value == "else") {
+        return new Else();
+    }
+
     return new Var(value);
+}
+
+Token *Lex::getCommentToken() {
+    if (ch != '"') {
+        return nullptr;
+    }
+
+    next();
+
+    auto *value = new string;
+
+    while (ch != '"') {
+        value->push_back(ch);
+        next();
+    }
+
+    next();
+
+    return new String(value);
 }
