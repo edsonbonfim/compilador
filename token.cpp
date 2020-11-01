@@ -1,13 +1,7 @@
 #include "token.h"
 
-Token::~Token() {
-    delete value;
-}
+Token::~Token() = default;
 
 Token::Token(void *value) {
     this->value = value;
-}
-
-Token::Token() {
-
 }

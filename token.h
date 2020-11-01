@@ -8,9 +8,6 @@ using namespace std;
 class Token {
 public:
     void *value;
-    int pos;
-
-    Token();
 
     explicit Token(void *value);
 
