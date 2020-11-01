@@ -26,6 +26,9 @@ public:
     }
 };
 
+class Exit : public Token {
+};
+
 class Program : public Token {
 public:
     explicit Program() : Token(new string("program")) {};

@@ -34,6 +34,10 @@ Lex::~Lex() {
 Token *Lex::getNextToken() {
     skipCommentsAndWhiteSpaces();
 
+    if (ch == '\0') {
+        return nullptr;
+    }
+
     if (eh_digito(ch) || eh_ponto(ch)) {
         return getNumberToken();
     }

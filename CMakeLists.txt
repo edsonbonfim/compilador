@@ -7,4 +7,4 @@ set(CMAKE_CXX_STANDARD 14)
 
 file(GLOB SOURCES *.cpp)
 
-add_executable(${EXEC} ${SOURCES} lex.cpp lex.h)
+add_executable(${EXEC} ${SOURCES})

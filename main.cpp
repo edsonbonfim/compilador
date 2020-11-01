@@ -2,10 +2,6 @@
 #include <cstdlib>
 
 #include <iostream>
-#include <fstream>
-
-#include "lex2.h"
-#include "tools.h"
 #include "lex.h"
 
 using namespace std;
