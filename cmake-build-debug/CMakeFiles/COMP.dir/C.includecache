@@ -6,7 +6,29 @@
 
 #IncludeRegexTransform: 
 
+/home/edsonbonfim/Desktop/compilador/lex.c
+stdlib.h
+-
+string.h
+-
+assert.h
+-
+lex.h
 /home/edsonbonfim/Desktop/compilador/lex.h
+
+/home/edsonbonfim/Desktop/compilador/lex.h
+
+/home/edsonbonfim/Desktop/compilador/main.c
+stdio.h
+-
+stdlib.h
+-
+tools.h
+/home/edsonbonfim/Desktop/compilador/tools.h
+lex.h
+/home/edsonbonfim/Desktop/compilador/lex.h
+parser.h
+/home/edsonbonfim/Desktop/compilador/parser.h
 
 /home/edsonbonfim/Desktop/compilador/parser.c
 stdarg.h
@@ -27,4 +49,6 @@ lex.h
 /home/edsonbonfim/Desktop/compilador/parser.h
 lex.h
 /home/edsonbonfim/Desktop/compilador/lex.h
+
+/home/edsonbonfim/Desktop/compilador/tools.h
 

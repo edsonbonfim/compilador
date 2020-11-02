@@ -10,6 +10,9 @@ typedef struct Tree {
 } Tree;
 
 Tree *parse_tree(Lex *_lex);
+
 void print_parse_tree(Tree *tree);
+
+Tree *dispose_parse_tree(Tree *node);
 
 #endif //COMP_PARSER_H

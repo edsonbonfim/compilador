@@ -21,11 +21,7 @@ int main(int argc, char **argv) {
 
     print_parse_tree(tree);
 
-
-//    do {
-//        next_token();
-//        imprimir_token(lex->current_token);
-//    } while (lex->current_token.tipo != EOF);
+    tree = dispose_parse_tree(tree);
 
     return EXIT_SUCCESS;
 }

@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -339,13 +338,6 @@ Token peek2() {
     return token;
 }
 
-/**
- * Percorre a entrada até obter o próximo token válido.
- */
 void next_token() {
-    prev_pos = pos;
-    prev_ch = caracter;
-
-    lex->prev_token = lex->current_token;
     lex->current_token = next();
 }

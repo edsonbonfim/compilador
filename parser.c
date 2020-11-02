@@ -8,36 +8,30 @@
 
 Lex *lex;
 
-bool _check_token(int n, Token token, va_list args) {
+bool check_token(int n, Token token, va_list args) {
     for (int i = 0; i < n; i++) {
         if (token.tipo == va_arg(args, int)) {
-            va_end(args);
             return true;
         }
     }
-
-    va_end(args);
-
     return false;
 }
 
-bool check_peek_token(int n, ...) {
+bool peek_token(int n, ...) {
     va_list args;
     va_start(args, n);
-    return _check_token(n, peek(), args);
+    bool status = check_token(n, peek(), args);
+    va_end(args);
+    return status;
 }
 
-bool check_peek2_token(int n, ...) {
+bool peek2_token(int n, ...) {
     va_list args;
     va_start(args, n);
-    return _check_token(n, peek2(), args);
+    bool status = check_token(n, peek2(), args);
+    va_end(args);
+    return status;
 }
-
-//bool check_token(int n, ...) {
-//    va_list args;
-//    va_start(args, n);
-//    return _check_token(n, lex->current_token, args);
-//}
 
 Tree *new_node() {
     Tree *node = (Tree *) malloc(sizeof(Tree));
@@ -57,7 +51,7 @@ void *syntax_error() {
  * [id] -> (id) Seqüência alfanumérica iniciada por char (tratado no lexico)
  */
 Tree *id() {
-    if (!check_peek_token(1, ID)) {
+    if (!peek_token(1, ID)) {
         return syntax_error();
     }
 
@@ -72,7 +66,7 @@ Tree *id() {
  * [number] -> (number) Seqüência numérica com a possibilidade da ocorrência de no máximo um ponto
  */
 Tree *number() {
-    if (!check_peek_token(2, INTEIRO, REAL)) {
+    if (!peek_token(2, INTEIRO, REAL)) {
         return syntax_error();
     }
 
@@ -91,26 +85,26 @@ Tree *param();
  *        -> [id] ([) [param] (])
  */
 Tree *name() {
-    if (!check_peek_token(1, ID)) {
+    if (!peek_token(1, ID)) {
         return syntax_error();
     }
 
     Tree *node = new_node(); // [name]
     node->child = id();      // [id]
 
-    if (check_peek_token(1, PONTO)) {
+    if (peek_token(1, PONTO)) {
         next_token();
         node->child->brother = new_node();      // (.)
         node->child->brother->brother = name(); // [name]
         return node;
     }
 
-    if (check_peek_token(1, L_BRACKET)) {
+    if (peek_token(1, L_BRACKET)) {
         next_token();
         node->child->brother = new_node();       // ([)
         node->child->brother->brother = param(); // [param]
 
-        if (!check_peek_token(1, R_BRACKET)) {
+        if (!peek_token(1, R_BRACKET)) {
             return syntax_error();
         }
 
@@ -129,7 +123,7 @@ Tree *name() {
  *           -> (/)
  */
 Tree *op_math() {
-    if (check_peek_token(4, PLUS, MINUS, TIMES, SLASH)) {
+    if (peek_token(4, PLUS, MINUS, TIMES, SLASH)) {
         next_token();
         Tree *node = new_node();  // [op_math]
         node->child = new_node(); // (+|-|*|/)
@@ -146,7 +140,7 @@ Tree *op_math() {
  *            -> (!)
  */
 Tree *op_logic() {
-    if (check_peek_token(4, BIGGER_THAN, LESS_THAN, EQUAL, EXCLAMATION)) {
+    if (peek_token(4, BIGGER_THAN, LESS_THAN, EQUAL, EXCLAMATION)) {
         next_token();
         Tree *node = new_node();  // [op_logic]
         node->child = new_node(); // (>|<|=|!)
@@ -163,12 +157,12 @@ Tree *op_logic() {
 Tree *param() {
     Tree *node = new_node(); // [param]
 
-    if (check_peek_token(1, ID)) {
+    if (peek_token(1, ID)) {
         node->child = name(); // [name]
         return node;
     }
 
-    if (check_peek_token(2, INTEIRO, REAL)) {
+    if (peek_token(2, INTEIRO, REAL)) {
         node->child = number(); // [number]
         return node;
     }
@@ -184,7 +178,7 @@ Tree *expr_math() {
     Tree *node = new_node(); // [expr_math]
     node->child = param();   // [param]
 
-    if (check_peek_token(4, PLUS, MINUS, TIMES, SLASH)) {
+    if (peek_token(4, PLUS, MINUS, TIMES, SLASH)) {
         node->child->brother = op_math(); // [op_math]
         node->child->brother->brother = expr_math(); // [expr_math]
     }
@@ -200,7 +194,7 @@ Tree *expr_logic() {
     Tree *node = new_node();   // [expr_logic]
     node->child = expr_math(); // [expr_math]
 
-    if (check_peek_token(4, BIGGER_THAN, LESS_THAN, EQUAL, EXCLAMATION)) {
+    if (peek_token(4, BIGGER_THAN, LESS_THAN, EQUAL, EXCLAMATION)) {
         node->child->brother = op_logic();
         node->child->brother->brother = expr_logic();
     }
@@ -216,7 +210,7 @@ Tree *expr_logic() {
 Tree *list_name() {
     Tree *node = new_node(); // [list_name]
 
-    if (!check_peek_token(1, ID)) {
+    if (!peek_token(1, ID)) {
         node->child = new_node(); // Є
         node->child->token.valor = "";
         return node;
@@ -224,7 +218,7 @@ Tree *list_name() {
 
     node->child = param();   // [param]
 
-    if (check_peek_token(1, VIRGULA)) {
+    if (peek_token(1, VIRGULA)) {
         next_token();
         node->child->brother = new_node(); // (,)
         node->child->brother->brother = list_name(); // [list_name]
@@ -237,7 +231,7 @@ Tree *list_name() {
  * [list_param] -> (() [list_name] ())
  */
 Tree *list_param() {
-    if (!check_peek_token(1, L_PAREN)) {
+    if (!peek_token(1, L_PAREN)) {
         return syntax_error();
     }
 
@@ -246,7 +240,7 @@ Tree *list_param() {
     node->child = new_node(); // (()
     node->child->brother = list_name(); // [list_name]
 
-    if (!check_peek_token(1, R_PAREN)) {
+    if (!peek_token(1, R_PAREN)) {
         return syntax_error();
     }
 
@@ -262,7 +256,7 @@ Tree *list_param() {
 Tree *value() {
     Tree *node = new_node(); // [value]
 
-    if (check_peek2_token(1, L_PAREN)) {
+    if (peek2_token(1, L_PAREN)) {
         node->child = id();
         node->child->brother = list_param();
         return node;
@@ -281,7 +275,7 @@ Tree *bloc();
 Tree *_else() {
     Tree *node = new_node(); // [_else]
 
-    if (!check_peek_token(1, ELSE)) {
+    if (!peek_token(1, ELSE)) {
         node->child = new_node();
         node->child->token.valor = ""; // Є
         return node;
@@ -306,7 +300,7 @@ Tree *const_value();
 Tree *command() {
     Tree *node = new_node(); // [command]
 
-    if (check_peek_token(1, WHILE)) {
+    if (peek_token(1, WHILE)) {
         next_token();
         node->child = new_node(); // (while)
         node->child->brother = expr_logic(); // [expr_logic]
@@ -314,12 +308,12 @@ Tree *command() {
         return node;
     }
 
-    if (check_peek_token(1, IF)) {
+    if (peek_token(1, IF)) {
         next_token();
         node->child = new_node(); // (if)
         node->child->brother = expr_logic(); // [expr_logic]
 
-        if (!check_peek_token(1, THEN)) {
+        if (!peek_token(1, THEN)) {
             return syntax_error();
         }
 
@@ -330,14 +324,14 @@ Tree *command() {
         return node;
     }
 
-    if (check_peek_token(1, WRITE)) {
+    if (peek_token(1, WRITE)) {
         next_token();
         node->child = new_node(); // (write)
         node->child->brother = const_value(); // [const_value]
         return node;
     }
 
-    if (check_peek_token(1, READ)) {
+    if (peek_token(1, READ)) {
         next_token();
         node->child = new_node(); // (read)
         node->child->brother = name(); // [name]
@@ -346,7 +340,7 @@ Tree *command() {
 
     node->child = name(); // [name]
 
-    if (!check_peek_token(1, ATTR)) {
+    if (!peek_token(1, ATTR)) {
         return syntax_error();
     }
 
@@ -363,7 +357,7 @@ Tree *command() {
 Tree *list_command() {
     Tree *node = new_node(); // [list_command]
 
-    if (!check_peek_token(5, WHILE, IF, WRITE, READ, ID)) {
+    if (!peek_token(5, WHILE, IF, WRITE, READ, ID)) {
         node->child = new_node(); // Є
         node->child->token.valor = "";
         return node;
@@ -371,7 +365,7 @@ Tree *list_command() {
 
     node->child = command(); // [command]
 
-    if (!check_peek_token(1, PT_VIRGULA)) {
+    if (!peek_token(1, PT_VIRGULA)) {
         return syntax_error();
     }
 
@@ -388,12 +382,12 @@ Tree *list_command() {
 Tree *bloc() {
     Tree *node = new_node(); // [bloc]
 
-    if (check_peek_token(1, INICIO)) {
+    if (peek_token(1, INICIO)) {
         next_token();
         node->child = new_node(); // (begin)
         node->child->brother = list_command(); // [list_command]
 
-        if (!check_peek_token(1, FIM)) {
+        if (!peek_token(1, FIM)) {
             return syntax_error();
         }
 
@@ -416,7 +410,7 @@ Tree *def_variable();
 Tree *bloc_function() {
     Tree *node = new_node(); // [bloc_function]
 
-    if (check_peek_token(1, VAR)) {
+    if (peek_token(1, VAR)) {
         node->child = def_variable();  // [def_variable]
         node->child->brother = bloc(); // [bloc]
         return node;
@@ -434,7 +428,7 @@ Tree *data_type();
  * [name_function] -> (function) [id] (() [list_variable] ()) (:) [data_type]
  */
 Tree *name_function() {
-    if (!check_peek_token(1, FUNCTION)) {
+    if (!peek_token(1, FUNCTION)) {
         return syntax_error();
     }
 
@@ -443,7 +437,7 @@ Tree *name_function() {
     node->child = new_node(); // (function)
     node->child->brother = id(); // [id]
 
-    if (!check_peek_token(1, L_PAREN)) {
+    if (!peek_token(1, L_PAREN)) {
         return syntax_error();
     }
 
@@ -451,14 +445,14 @@ Tree *name_function() {
     node->child->brother->brother = new_node(); // (()
     node->child->brother->brother->brother = list_variable(); // [list_variable]
 
-    if (!check_peek_token(1, R_PAREN)) {
+    if (!peek_token(1, R_PAREN)) {
         return syntax_error();
     }
 
     next_token();
     node->child->brother->brother->brother->brother = new_node(); // ())
 
-    if (!check_peek_token(1, DOIS_PONTOS)) {
+    if (!peek_token(1, DOIS_PONTOS)) {
         return syntax_error();
     }
 
@@ -486,7 +480,7 @@ Tree *function() {
 Tree *list_function() {
     Tree *node = new_node(); // [list_function]
 
-    if (!check_peek_token(1, FUNCTION)) {
+    if (!peek_token(1, FUNCTION)) {
         node->child = new_node(); // Є
         node->child->token.valor = "";
         return node;
@@ -508,17 +502,17 @@ Tree *list_function() {
 Tree *data_type() {
     Tree *node = new_node(); // [data_type]
 
-    if (check_peek_token(2, TIPO_DADO)) {
+    if (peek_token(2, TIPO_DADO)) {
         next_token();
         node->child = new_node(); // (integer|real)
         return node;
     }
 
-    if (check_peek_token(1, VETOR)) {
+    if (peek_token(1, VETOR)) {
         next_token();
         node->child = new_node(); // (array)
 
-        if (!check_peek_token(1, L_BRACKET)) {
+        if (!peek_token(1, L_BRACKET)) {
             return syntax_error();
         }
 
@@ -526,14 +520,14 @@ Tree *data_type() {
         node->child->brother = new_node(); // ([)
         node->child->brother = number(); // [number]
 
-        if (!check_peek_token(1, R_BRACKET)) {
+        if (!peek_token(1, R_BRACKET)) {
             return syntax_error();
         }
 
         next_token();
         node->child->brother = new_node(); // (])
 
-        if (!check_peek_token(1, OF)) {
+        if (!peek_token(1, OF)) {
             return syntax_error();
         }
 
@@ -544,12 +538,12 @@ Tree *data_type() {
         return node;
     }
 
-    if (check_peek_token(1, RECORD)) {
+    if (peek_token(1, RECORD)) {
         next_token();
         node->child = new_node(); // (record)
         node->child->brother = list_variable(); // [list_variable]
 
-        if (!check_peek_token(1, FIM)) {
+        if (!peek_token(1, FIM)) {
             return syntax_error();
         }
 
@@ -572,7 +566,7 @@ Tree *list_id() {
     Tree *node = new_node(); // [list_id]
     node->child = id(); // [id]
 
-    if (!check_peek_token(1, VIRGULA)) {
+    if (!peek_token(1, VIRGULA)) {
         return node;
     }
 
@@ -590,7 +584,7 @@ Tree *variable() {
     Tree *node = new_node(); // [variable]
     node->child = list_id();
 
-    if (!check_peek_token(1, DOIS_PONTOS)) {
+    if (!peek_token(1, DOIS_PONTOS)) {
         return syntax_error();
     }
 
@@ -608,7 +602,7 @@ Tree *variable() {
 Tree *list_variable() {
     Tree *node = new_node(); // [list_variable]
 
-    if (!check_peek_token(1, ID)) {
+    if (!peek_token(1, ID)) {
         node->child = new_node(); // Є
         node->child->token.valor = "";
         return node;
@@ -616,7 +610,7 @@ Tree *list_variable() {
 
     node->child = variable();
 
-    if (!check_peek_token(1, PT_VIRGULA)) {
+    if (!peek_token(1, PT_VIRGULA)) {
         return node;
     }
 
@@ -634,7 +628,7 @@ Tree *type() {
     Tree *node = new_node(); // [type]
     node->child = id(); // [id]
 
-    if (!check_peek_token(1, EQUAL)) {
+    if (!peek_token(1, EQUAL)) {
         return syntax_error();
     }
 
@@ -653,7 +647,7 @@ Tree *type() {
 Tree *list_type() {
     Tree *node = new_node(); // [list_type]
 
-    if (!check_peek_token(1, ID)) {
+    if (!peek_token(1, ID)) {
         node->child = new_node(); // Є
         node->child->token.valor = "";
         return node;
@@ -661,7 +655,7 @@ Tree *list_type() {
 
     node->child = type();
 
-    if (!check_peek_token(1, PT_VIRGULA)) {
+    if (!peek_token(1, PT_VIRGULA)) {
         return node;
     }
 
@@ -679,7 +673,7 @@ Tree *list_type() {
 Tree *const_value() {
     Tree *node = new_node(); // [const_value]
 
-    if (check_peek_token(1, STRING)) {
+    if (peek_token(1, STRING)) {
         next_token();
         node->child = new_node(); // string
         return node;
@@ -696,7 +690,7 @@ Tree *constant() {
     Tree *node = new_node(); // [constant]
     node->child = id(); // [id]
 
-    if (!check_peek_token(1, EQUAL)) {
+    if (!peek_token(1, EQUAL)) {
         return syntax_error();
     }
 
@@ -704,7 +698,7 @@ Tree *constant() {
     node->child->brother = new_node(); // (=)
     node->child->brother->brother = const_value(); // [const_value]
 
-    if (!check_peek_token(1, PT_VIRGULA)) {
+    if (!peek_token(1, PT_VIRGULA)) {
         return syntax_error();
     }
 
@@ -731,7 +725,7 @@ Tree *list_const() {
 Tree *def_variable() {
     Tree *node = new_node(); // [def_variable]
 
-    if (!check_peek_token(1, VAR)) {
+    if (!peek_token(1, VAR)) {
         node->child = new_node(); // Є
         node->child->token.valor = "";
         return node;
@@ -751,7 +745,7 @@ Tree *def_variable() {
 Tree *def_type() {
     Tree *node = new_node(); // [def_type]
 
-    if (!check_peek_token(1, TIPO)) {
+    if (!peek_token(1, TIPO)) {
         node->child = new_node(); // Є
         node->child->token.valor = "";
         return node;
@@ -771,7 +765,7 @@ Tree *def_type() {
 Tree *def_const() {
     Tree *node = new_node(); // [def_const]
 
-    if (!check_peek_token(1, CONSTANTE)) {
+    if (!peek_token(1, CONSTANTE)) {
         node->child = new_node(); // Є
         node->child->token.valor = "";
         return node;
@@ -791,7 +785,7 @@ Tree *def_const() {
 Tree *declarations() {
     Tree *node = new_node(); // [declarations]
 
-    if (!check_peek_token(4, CONSTANTE, TIPO, VAR, FUNCTION)) {
+    if (!peek_token(4, CONSTANTE, TIPO, VAR, FUNCTION)) {
         node->child = new_node(); // Є
         node->child->token.valor = "";
         return node;
@@ -812,7 +806,7 @@ Tree *declarations() {
 Tree *body() {
     Tree *node = new_node();  // [body]
 
-    if (!check_peek_token(1, INICIO)) {
+    if (!peek_token(1, INICIO)) {
         node->child = declarations(); // [declarations]
         node->child->brother = body(); // [body]
         return node;
@@ -822,7 +816,7 @@ Tree *body() {
     node->child = new_node(); // (begin)
     node->child->brother = list_command(); // [list_command]
 
-    if (!check_peek_token(1, FIM)) {
+    if (!peek_token(1, FIM)) {
         return syntax_error();
     }
 
@@ -836,7 +830,7 @@ Tree *body() {
  * [program] -> (program) [id] (;) [body]
  */
 Tree *program() {
-    if (!check_peek_token(1, PROGRAMA)) {
+    if (!peek_token(1, PROGRAMA)) {
         return syntax_error();
     }
 
@@ -845,7 +839,7 @@ Tree *program() {
     node->child = new_node();    // (program)
     node->child->brother = id(); // [id]
 
-    if (!check_peek_token(1, PT_VIRGULA)) {
+    if (!peek_token(1, PT_VIRGULA)) {
         return syntax_error();
     }
 
@@ -861,21 +855,33 @@ Tree *parse_tree(Lex *_lex) {
     return program();
 }
 
-void print_parse_tree(Tree *tree) {
-    if (tree == NULL) {
+void print_parse_tree(Tree *node) {
+    if (node == NULL) {
         return;
     }
 
-    if (tree->child == NULL && strcmp(tree->token.valor, "") != 0) {
-        if (tree->token.tipo == INTEIRO) {
-            printf("%d ", *(int *) tree->token.valor);
-        } else if (tree->token.tipo == REAL) {
-            printf("%g ", *(double *) tree->token.valor);
+    if (node->child == NULL && strcmp(node->token.valor, "") != 0) {
+        if (node->token.tipo == INTEIRO) {
+            printf("%d ", *(int *) node->token.valor);
+        } else if (node->token.tipo == REAL) {
+            printf("%g ", *(double *) node->token.valor);
         } else {
-            printf("%s ", (char *) tree->token.valor);
+            printf("%s ", (char *) node->token.valor);
         }
     }
 
-    print_parse_tree(tree->child);
-    print_parse_tree(tree->brother);
+    print_parse_tree(node->child);
+    print_parse_tree(node->brother);
+}
+
+Tree *dispose_parse_tree(Tree *node) {
+    if (node == NULL) {
+        return NULL;
+    }
+
+    node->brother = dispose_parse_tree(node->brother);
+    node->child = dispose_parse_tree(node->child);
+    free(node);
+
+    return NULL;
 }
