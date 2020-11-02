@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include "lex.h"
 
@@ -35,8 +36,6 @@ static int coluna = 1;
  */
 Lex *iniciar_lex(char *codigo) {
     lex = (Lex *) malloc(sizeof(Lex));
-    lex->current_token.pos.linha = 0;
-    lex->current_token.pos.coluna = 1;
     pos = 0;
     texto = codigo;
     caracter = texto[pos];
@@ -46,28 +45,30 @@ Lex *iniciar_lex(char *codigo) {
 /**
  * Obtém o próximo caracter da entrada
  */
-void avancar() {
-    if (texto[pos + 1] == '\n') {
-        linha++;
-        coluna = 1;
-    } else {
-        coluna++;
-    }
-
+void avancar(bool isPeek) {
     caracter = texto[++pos];
+
+    if (!isPeek) {
+        if (texto[pos] == '\n') {
+            linha++;
+            coluna = 0;
+        } else {
+            coluna++;
+        }
+    }
 }
 
 /**
  * Ignora os espaços e comentários
  */
-void pular_espaco_e_comentario(void) {
+void pular_espaco_e_comentario(bool isPeek) {
     while (eh_espaco(caracter)) {
-        avancar();
+        avancar(isPeek);
     }
 
     while (eh_inicio_comentario(caracter)) {
         // Ignora o simbolo {
-        avancar();
+        avancar(isPeek);
 
         while (!eh_final_comentario(caracter)) {
             if (eh_final_do_texto(caracter)) {
@@ -75,28 +76,16 @@ void pular_espaco_e_comentario(void) {
             }
 
             // Ignora o comentário
-            avancar();
+            avancar(isPeek);
         }
 
         // Ignora o simbolo }
-        avancar();
+        avancar(isPeek);
 
         while (eh_espaco(caracter)) {
-            avancar();
+            avancar(isPeek);
         }
     }
-}
-
-/**
- * Armazena a posição do lex->current_token.
- *
- * Armazena a posição em que o token foi encontrado na entrada.
- * Isso será útil para identificar a posição do token em caso de erro,
- * fornecendo um feedback mais preciso para o usuário.
- */
-void gravar_pos_token(void) {
-    lex->current_token.pos.linha = linha;
-    lex->current_token.pos.coluna = coluna;
 }
 
 char *obter_string(int pos_inicial) {
@@ -133,19 +122,15 @@ char *converte_char_para_string(char ch) {
     return string;
 }
 
-void prev_token() {
-    pos = prev_pos;
-    caracter = prev_ch;
-    lex->current_token = lex->prev_token;
-}
-
-Token next() {
+Token next(bool isPeek) {
     Token token;
 
-    pular_espaco_e_comentario();
+    pular_espaco_e_comentario(isPeek);
 
-    // Agora estamos no inicio de um simbolo ou no fim do arquivo
-    gravar_pos_token();
+    if (!isPeek) {
+        token.pos.linha = linha + 1;
+        token.pos.coluna = coluna;
+    }
 
     // Posição da entrada no inicio do reconhecimento
     int pos_inicial = pos;
@@ -158,7 +143,7 @@ Token next() {
 
         while (eh_digito(caracter) || eh_ponto(caracter)) {
             if (eh_ponto(caracter)) token.tipo = REAL;
-            avancar();
+            avancar(isPeek);
         }
 
         char *resultado = obter_string(pos_inicial);
@@ -171,85 +156,85 @@ Token next() {
     } else if (caracter == '>') {
         token.tipo = BIGGER_THAN;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '<') {
         token.tipo = LESS_THAN;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '=') {
         token.tipo = EQUAL;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '!') {
         token.tipo = EXCLAMATION;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '+') {
         token.tipo = PLUS;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '-') {
         token.tipo = MINUS;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '*') {
         token.tipo = TIMES;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '/') {
         token.tipo = SLASH;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '[') {
         token.tipo = L_BRACKET;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == ']') {
         token.tipo = R_BRACKET;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == ';') {
         token.tipo = PT_VIRGULA;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == ',') {
         token.tipo = VIRGULA;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == ':' && texto[pos + 1] == '=') {
         token.tipo = ATTR;
         token.valor = ":=";
-        avancar();
-        avancar();
+        avancar(isPeek);
+        avancar(isPeek);
     } else if (caracter == ':') {
         token.tipo = DOIS_PONTOS;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '(') {
         token.tipo = L_PAREN;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == ')') {
         token.tipo = R_PAREN;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '.') {
         token.tipo = PONTO;
         token.valor = converte_char_para_string(caracter);
-        avancar();
+        avancar(isPeek);
     } else if (caracter == '"') {
         token.tipo = STRING;
 
-        avancar();
+        avancar(isPeek);
 
         pos_inicial = pos;
 
-        while (caracter != '"') avancar();
+        while (caracter != '"') avancar(isPeek);
 
         // Tamanho da string reconhecida
         size_t tamanho = pos - pos_inicial;
 
-        avancar();
+        avancar(isPeek);
 
         // String reconhecida
         char *retorno = malloc(tamanho + 1);
@@ -260,7 +245,7 @@ Token next() {
         token.valor = retorno;
     } else if (eh_letra(caracter)) {
         token.tipo = ID;
-        while (eh_letra_ou_digito(caracter)) avancar();
+        while (eh_letra_ou_digito(caracter)) avancar(isPeek);
 
         // Tamanho da string reconhecida
         size_t tamanho = pos - pos_inicial;
@@ -317,7 +302,7 @@ Token peek() {
     prev_ch = caracter;
     prev_pos = pos;
 
-    Token token = next();
+    Token token = next(true);
 
     pos = prev_pos;
     caracter = prev_ch;
@@ -329,8 +314,8 @@ Token peek2() {
     prev_ch = caracter;
     prev_pos = pos;
 
-    next();
-    Token token = next();
+    next(true);
+    Token token = next(true);
 
     pos = prev_pos;
     caracter = prev_ch;
@@ -339,5 +324,5 @@ Token peek2() {
 }
 
 void next_token() {
-    lex->current_token = next();
+    lex->token = next(false);
 }

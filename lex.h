@@ -60,8 +60,7 @@ typedef struct Token {
 } Token;
 
 typedef struct Lex {
-    Token current_token;
-    Token prev_token;
+    Token token;
 } Lex;
 
 extern Lex *iniciar_lex(char *);

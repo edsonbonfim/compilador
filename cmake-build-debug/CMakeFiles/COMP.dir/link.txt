@@ -1,1 +1,0 @@
-/usr/bin/cc -g   CMakeFiles/COMP.dir/main.c.o CMakeFiles/COMP.dir/lex.c.o CMakeFiles/COMP.dir/tools.c.o CMakeFiles/COMP.dir/parser.c.o  -o COMP 

@@ -35,15 +35,17 @@ bool peek2_token(int n, ...) {
 
 Tree *new_node() {
     Tree *node = (Tree *) malloc(sizeof(Tree));
-    node->token.valor = lex->current_token.valor;
-    node->token.tipo = lex->current_token.tipo;
+    node->token.valor = lex->token.valor;
+    node->token.tipo = lex->token.tipo;
     node->child = NULL;
     node->brother = NULL;
     return node;
 }
 
 void *syntax_error() {
-    printf("Syntax error: %s\n", (char *) lex->current_token.valor);
+    next_token();
+    printf("Syntax error: Unespected symbol \"%s\" at line %d:%d", (char *) lex->token.valor,
+           lex->token.pos.linha, lex->token.pos.coluna);
     exit(EXIT_FAILURE);
 }
 
@@ -518,22 +520,22 @@ Tree *data_type() {
 
         next_token();
         node->child->brother = new_node(); // ([)
-        node->child->brother = number(); // [number]
+        node->child->brother->brother = number(); // [number]
 
         if (!peek_token(1, R_BRACKET)) {
             return syntax_error();
         }
 
         next_token();
-        node->child->brother = new_node(); // (])
+        node->child->brother->brother->brother = new_node(); // (])
 
         if (!peek_token(1, OF)) {
             return syntax_error();
         }
 
         next_token();
-        node->child->brother = new_node(); // (of)
-        node->child->brother->brother = data_type(); // [data_type]
+        node->child->brother->brother->brother->brother = new_node(); // (of)
+        node->child->brother->brother->brother->brother->brother = data_type(); // [data_type]
 
         return node;
     }
@@ -862,11 +864,11 @@ void print_parse_tree(Tree *node) {
 
     if (node->child == NULL && strcmp(node->token.valor, "") != 0) {
         if (node->token.tipo == INTEIRO) {
-            printf("%d ", *(int *) node->token.valor);
+            printf("%d\n", *(int *) node->token.valor);
         } else if (node->token.tipo == REAL) {
-            printf("%g ", *(double *) node->token.valor);
+            printf("%g\n", *(double *) node->token.valor);
         } else {
-            printf("%s ", (char *) node->token.valor);
+            printf("%s\n", (char *) node->token.valor);
         }
     }
 
