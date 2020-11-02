@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/edsonbonfim/Desktop/compilador/lex.h
+
+/home/edsonbonfim/Desktop/compilador/parser.c
+stdarg.h
+-
+stdbool.h
+-
+stdlib.h
+-
+stdio.h
+-
+parser.h
+/home/edsonbonfim/Desktop/compilador/parser.h
+lex.h
+/home/edsonbonfim/Desktop/compilador/lex.h
+
+/home/edsonbonfim/Desktop/compilador/parser.h
+lex.h
+/home/edsonbonfim/Desktop/compilador/lex.h
+

@@ -1,0 +1,3 @@
+/home/edsonbonfim/Desktop/compilador/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/edsonbonfim/Desktop/compilador/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/edsonbonfim/Desktop/compilador/cmake-build-debug/CMakeFiles/COMP.dir
