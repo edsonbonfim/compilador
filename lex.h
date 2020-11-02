@@ -72,4 +72,9 @@ extern void next_token(void);
 
 extern void imprimir_token(struct Token token);
 
+
+Token peek();
+
+Token peek2();
+
 #endif //COMP_LEX_H

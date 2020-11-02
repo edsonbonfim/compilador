@@ -4,7 +4,7 @@
 #include "lex.h"
 
 typedef struct Tree {
-    void *value;
+    Token token;
     struct Tree *brother;
     struct Tree *child;
 } Tree;

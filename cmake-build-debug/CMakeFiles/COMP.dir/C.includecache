@@ -17,6 +17,8 @@ stdlib.h
 -
 stdio.h
 -
+string.h
+-
 parser.h
 /home/edsonbonfim/Desktop/compilador/parser.h
 lex.h
